@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRShare - Users & Upload</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h2>QRShare - User Registration & Image Upload</h2>
+
+    <form id="registerForm">
+        <h3>Register User</h3>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Register</button>
+    </form>
+
+    <form id="uploadForm">
+        <h3>Upload Image</h3>
+        <input type="file" id="fileInput" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+    <img id="qrCode" />
+
+    <h2>Registered Users</h2>
+    <button id="showUsersBtn">Show Users</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody id="userTable"></tbody>
+    </table>
+
+    <script>
+        // Register User
+        document.getElementById("registerForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch("http://localhost:8000/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password }),
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+
+        // Upload Image
+        document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            let formData = new FormData();
+            formData.append("file", document.getElementById("fileInput").files[0]);
+
+            let response = await fetch("http://localhost:8000/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            let result = await response.json();
+            alert(result.message);
+            document.getElementById("qrCode").src = result.qrCodeUrl;
+            document.getElementById("qrCode").style.display = "block";
+        });
+
+        // Fetch Registered Users on Button Click
+        document.getElementById("showUsersBtn").addEventListener("click", async function () {
+            let response = await fetch("http://localhost:8000/users");
+            let users = await response.json();
+
+            let userTable = document.getElementById("userTable");
+            userTable.innerHTML = "";
+
+            users.forEach(user => {
+                let row = `<tr><td>${user.email}</td></tr>`;
+                userTable.innerHTML += row;
+            });
+        });
+    </script>
+</body>
+</html>
