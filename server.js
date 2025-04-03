@@ -17,10 +17,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {})
+// MongoDB Connection\
+MONGO = process.env.MONGO_URI;
+mongoose.connect(MONGO, {})
     .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.log(err));
+    .catch(err => console.log(err)
+);
 
 // User Schema
 const UserSchema = new mongoose.Schema({
